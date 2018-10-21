@@ -1,0 +1,7 @@
+# There is list of required packages
+numpy
+pandas
+pandas-datareader
+sklearn
+statsmodels
+sortedcontainers
