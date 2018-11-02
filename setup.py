@@ -17,7 +17,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     license='GPL',
     keywords=['trend', 'trends', 'timeseries', 'patterns'],
-    download_url='',
+    download_url='https://github.com/dmarienko/trendspy/archive/v0.1.tar.gz',
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GPL License",
