@@ -1,7 +1,8 @@
-import pandas as pd
-import numpy as np
-from statsmodels.regression.linear_model import OLS
 from typing import Union
+
+import numpy as np
+import pandas as pd
+from statsmodels.regression.linear_model import OLS
 
 
 def binarize(_x, n, limits=(None, None), center=False):
@@ -29,9 +30,9 @@ def scaling_transform(x, n=5, need_round=True, limits=None):
     else:
         _lmax = max(limits)
         _lmin = min(limits)
-    
+
     if need_round:
-        ni = np.round(np.interp(x, (_lmin, _lmax), (-2*n, +2*n))) / 2
+        ni = np.round(np.interp(x, (_lmin, _lmax), (-2 * n, +2 * n))) / 2
     else:
         ni = np.interp(x, (_lmin, _lmax), (-n, +n))
     return pd.Series(ni, index=x.index)
@@ -51,15 +52,15 @@ def rolling_series_slope(x: pd.Series, period: Union[str, int], n_bins=5, method
         _lmts = (-90, 90)
     else:
         raise ValueError('Unknown Method %s' % method)
-    
+
     _min_p = period
     if isinstance(period, str):
-        _min_p = 1 #pd.Timedelta(period).days
-    
+        _min_p = 1  # pd.Timedelta(period).days
+
     roll_slope = x.rolling(period, min_periods=_min_p).apply(slp_meth)
     if scaling == 'transform':
         return scaling_transform(roll_slope, n=n_bins, limits=_lmts)
     elif scaling == 'binarize':
         return binarize(roll_slope, n=(n_bins - 1) * 4, limits=_lmts, center=True) / 2
-    
+
     return roll_slope
