@@ -1,16 +1,17 @@
 import setuptools
 
+
 def parse_requirements(requirements):
     with open(requirements) as f:
         return [l.strip('\n') for l in f if l.strip('\n') and not l.startswith('#')]
 
     
-reqs = parse_requirements('required.txt')
+reqs = parse_requirements('requirements.txt')
 
 
 setuptools.setup(
     name="trendspy",
-    version="0.0.1",
+    version="0.0.3",
     author="Dmitry E. Marienko",
     author_email="dmitry.ema@gmail.com",
     description="Collection of python utilities for timeseries trends analysis",
