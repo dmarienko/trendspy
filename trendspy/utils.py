@@ -1,7 +1,17 @@
+"""
+    TrendsPy project
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyright: © 2018, AppliedAlpha.com
+    :author: Dmitry E. Marienko
+    :license: GPL
+"""
+
 from ctypes import Union
 
 import numpy as np
 import pandas as pd
+import types
 
 
 def column_vector(x):
@@ -172,7 +182,7 @@ def apply_to_frame(func, x, *args, **kwargs):
     """
     Utility applies given function to x and converts result to incoming type
 
-    >>> from ira.analysis.timeseries import ema
+    >>> from trendspy.indicators import ema
     >>> apply_to_frame(ema, data['EURUSD'], 50)
     >>> apply_to_frame(lambda x, p1: x + p1, data['EURUSD'], 1)
 

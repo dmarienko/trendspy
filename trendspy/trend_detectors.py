@@ -1,8 +1,18 @@
+"""
+    TrendsPy project
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    :copyright: © 2018, AppliedAlpha.com
+    :author: Dmitry E. Marienko
+    :license: GPL
+"""
+
 from typing import Union
 
 import numpy as np
 import pandas as pd
 from statsmodels.regression.linear_model import OLS
+from .indicators import bollinger, bollinger_atr
 
 
 def binarize(_x, n, limits=(None, None), center=False):
@@ -64,3 +74,65 @@ def rolling_series_slope(x: pd.Series, period: Union[str, int], n_bins=5, method
         return binarize(roll_slope, n=(n_bins - 1) * 4, limits=_lmts, center=True) / 2
 
     return roll_slope
+
+
+def trend_detector(data, period, nstd, avg='sma', k_ext=1, exit_on_mid=False,
+                   use_atr=False, atr_period=12, atr_avg='kama') -> pd.DataFrame:
+    """
+    Trend detector method
+
+    :param data: input series/frame
+    :param period: bb period
+    :param nstd: bb num of stds
+    :param avg: averaging ma type
+    :param k_ext: extending factor
+    :param exit_on_mid: trend is over when x crosses middle of bb
+    :param use_atr: true if we use bollinger_atr for trend detecting
+    :param atr_period: ATR period (used only when use_atr is True)
+    :param atr_avg: ATR smoother (used only when use_atr is True)
+    :return: frame
+    """
+    # flatten list lambda
+    flatten = lambda l: [item for sublist in l for item in sublist]
+
+    # just taking close prices
+    x = data.close if isinstance(data, pd.DataFrame) else data
+
+    if use_atr:
+        midle, smax, smin = bollinger_atr(data, period, atr_period, nstd, avg, atr_avg)
+    else:
+        midle, smax, smin = bollinger(x, period, nstd, avg)
+
+    trend = (((x > smax.shift(1)) + 0.0) - ((x < smin.shift(1)) + 0.0)).replace(0, np.nan)
+
+    # some special case if we want to exit when close is on the opposite side of median price
+    if exit_on_mid:
+        lom, him = ((x < midle).values, (x > midle).values)
+        t = 0;
+        _t = trend.values.tolist()
+        for i in range(len(trend)):
+            t0 = _t[i]
+            t = t0 if np.abs(t0) == 1 else t
+            if (t > 0 and lom[i]) or (t < 0 and him[i]):
+                t = 0
+            _t[i] = t
+        trend = pd.Series(_t, trend.index)
+    else:
+        trend = trend.fillna(method='ffill').fillna(0.0)
+
+    # making resulting frame
+    m = x.to_frame().copy()
+    m['trend'] = trend
+    m['blk'] = (m.trend.shift(1) != m.trend).astype(int).cumsum()
+    m['x'] = abs(m.trend) * (smax * (-m.trend + 1) - smin * (1 + m.trend)) / 2
+    _g0 = m.reset_index().groupby(['blk', 'trend'])
+    m['x'] = flatten(abs(_g0['x'].apply(np.array).transform(np.minimum.accumulate).values))
+    m['utl'] = m.x.where(m.trend > 0)
+    m['dtl'] = m.x.where(m.trend < 0)
+
+    # signals
+    tsi = pd.DatetimeIndex(_g0['time'].apply(lambda x: x.values[0]).values)
+    m['uts'] = m.loc[tsi].utl
+    m['dts'] = m.loc[tsi].dtl
+
+    return m.filter(items=['uts', 'dts', 'trend', 'utl', 'dtl'])

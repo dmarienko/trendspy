@@ -1,3 +1,11 @@
+"""
+    TrendsPy project
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyright: © 2018, AppliedAlpha.com
+    :author: Dmitry E. Marienko
+    :license: GPL
+"""
 
 def p_dist(a, b):
     """

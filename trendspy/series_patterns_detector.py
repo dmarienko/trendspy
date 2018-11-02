@@ -1,8 +1,19 @@
+"""
+    TrendsPy project
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyright: © 2018, AppliedAlpha.com
+    :author: Dmitry E. Marienko
+    :license: GPL
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 from collections import OrderedDict
+
+from trendspy.charting.mpl_finance import ohlc_plot
 
 
 def plot_trends(trends, uc='w--', dc='c--', lw=0.7):
@@ -23,8 +34,13 @@ def plot_markup(x, trends, logs, number_of_log_record):
     labels = rec.dropna().values
     ts = trends[:tp]
 
-    # ohlc_plot(ohlc[trends.index[0]: max(trends.index[-1], logs.index[-1])])
-    plt.plot(x[trends.index[0]: max(trends.index[-1], logs.index[-1])], lw=2)
+    # plot series data
+    if isinstance(x, pd.DataFrame) and all([z in x.columns for z in ['open', 'close', 'high', 'low']]):
+        ohlc_plot(x[trends.index[0]: max(trends.index[-1], logs.index[-1])])
+    else:
+        plt.plot(x[trends.index[0]: max(trends.index[-1], logs.index[-1])], lw=2)
+
+    # plot trends
     plot_trends(ts[:-1])
 
     plt.plot([tp, tp], [plt.ylim()[0], plt.ylim()[1]], 'r--')
