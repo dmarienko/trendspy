@@ -20,7 +20,7 @@ setuptools.setup(
     download_url='https://github.com/dmarienko/trendspy/archive/v0.1.tar.gz',
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPL License",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
     ],
     install_requires=reqs,
