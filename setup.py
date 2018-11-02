@@ -1,10 +1,12 @@
 import setuptools
 
-reqs = ""
-with open('required.txt') as f:
-    reqs += f.read()
+def parse_requirements(requirements):
+    with open(requirements) as f:
+        return [l.strip('\n') for l in f if l.strip('\n') and not l.startswith('#')]
+
     
-reqs = list(filter(lambda x: not x.startswith('#'), reqs.split('\n')))
+reqs = parse_requirements('required.txt')
+
 
 setuptools.setup(
     name="trendspy",
